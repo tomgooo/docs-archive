@@ -509,6 +509,103 @@ export default function Poem() {
 
 #### challenge 1:
 
+```
+export default function Clock({time}) {
+    const hours = time.getHours();
+    let className;
+    if (hours >= 0 && hours <= 6) {
+        className = 'night';
+    } else {
+        className = 'day';
+    }
+    return (
+        <h1 id={className}>
+            {time.toLocaleTimeString()}
+        </h1>
+    );
+}
+
+```
+
 #### challenge 2:
 
+`Profile.js`
+
+```
+import Panel from './Panel.js';
+import { getImageUrl } from './utils.js';
+
+export default function Profile({ person }) {
+  return (
+    <Panel>
+      <Header person={person}/>
+      <Avatar person={person} />
+    </Panel>
+  )
+}
+
+function Header({person}) {
+  return <h1>{person.name}</h1>;
+}
+
+function Avatar({person}) {
+  return (
+    <img
+      className="avatar"
+      src={getImageUrl(person)}
+      alt={person.name}
+      width={50}
+      height={50}
+    />
+  );
+}
+
+```
+
+`App.js`
+
+```
+import Profile from './Profile.js';
+
+export default function App() {
+  return (
+    <>
+      <Profile person={{
+        imageId: 'lrWQx8l',
+        name: 'Subrahmanyan Chandrasekhar',
+      }} />
+      <Profile person={{
+        imageId: 'MK3eW3A',
+        name: 'Creola Katherine Johnson',
+      }} />
+    </>
+  )
+}
+
+```
+
 #### challenge 3:
+
+```
+export default function StoryTray({ stories }) {
+    let copyStories = stories.slice();
+    copyStories.push({
+    id: 'create',
+    label: 'Create Story'
+  });
+  return (
+    <ul>
+      {copyStories.map(story => (
+        <li key={story.id}>
+          {story.label}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+```
+
+## Adding Interactivity 添加交互性
+
+### Responding to Events 响应事件
