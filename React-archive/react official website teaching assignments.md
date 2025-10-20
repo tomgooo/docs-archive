@@ -180,3 +180,335 @@ export default function Profile() {
 ```
 
 ### Conditional Rendering 条件渲染
+
+#### challenge 1:
+
+```
+function Item({ name, isPacked }) {
+  return (
+      <li className="item">
+        {isPacked ? name + '✅':name + `❌︎`}
+      </li>
+  );
+}
+
+export default function PackingList() {
+  return (
+      <section>
+        <h1>Sally Ride's Packing List</h1>
+        <ul>
+          <Item
+              isPacked={true}
+              name="Space suit"
+          />
+          <Item
+              isPacked={true}
+              name="Helmet with a golden leaf"
+          />
+          <Item
+              isPacked={false}
+              name="Photo of Tam"
+          />
+        </ul>
+      </section>
+  );
+}
+
+```
+
+#### challenge 2:
+
+```
+function Item({name, importance}) {
+    return (
+        <li className="item">
+            {name} {importance > 0 && (<em>(Importance : {importance})</em>)}
+            </li>
+            );
+        }
+
+export default function PackingList() {
+    return (
+        <section>
+            <h1>Sally Ride's Packing List</h1>
+            <ul>
+                <Item
+                    importance={9}
+                    name="Space suit"
+                />
+                <Item
+                    importance={0}
+                    name="Helmet with a golden leaf"
+                />
+                <Item
+                    importance={6}
+                    name="Photo of Tam"
+                />
+            </ul>
+        </section>
+    );
+}
+
+```
+
+#### condition 3:
+
+```
+function Drink({name}) {
+  if (name === 'tea') {
+    return (
+        <section>
+          <h1>{name}</h1>
+          <dl>
+            <dt>Part of plant</dt>
+            <dd>{'leaf'}</dd>
+            <dt>Caffeine content</dt>
+            <dd>{'15–70 mg/cup'}</dd>
+            <dt>Age</dt>
+            <dd>{'4,000+ years'}</dd>
+          </dl>
+        </section>
+    );
+  }
+  if (name === 'coffee') {
+    return (
+        <section>
+          <h1>{name}</h1>
+          <dl>
+            <dt>Part of plant</dt>
+            <dd>{'bean'}</dd>
+            <dt>Caffeine content</dt>
+            <dd>{'80–185 mg/cup'}</dd>
+            <dt>Age</dt>
+            <dd>{'1,000+ years'}</dd>
+          </dl>
+        </section>
+    );
+  }
+
+}
+
+export default function DrinkList() {
+  return (
+      <div>
+        <Drink name="tea"/>
+        <Drink name="coffee"/>
+      </div>
+  );
+}
+
+```
+
+### Rendering Lists 渲染列表
+
+#### challenge 1:
+
+```
+function getImageUrl(person) {
+    return (
+        'https://i.imgur.com/' +
+        person.imageId +
+        's.jpg'
+    );
+}
+
+const people = [{
+    id: 0,
+    name: 'Creola Katherine Johnson',
+    profession: 'mathematician',
+    accomplishment: 'spaceflight calculations',
+    imageId: 'MK3eW3A'
+}, {
+    id: 1,
+    name: 'Mario José Molina-Pasquel Henríquez',
+    profession: 'chemist',
+    accomplishment: 'discovery of Arctic ozone hole',
+    imageId: 'mynHUSa'
+}, {
+    id: 2,
+    name: 'Mohammad Abdus Salam',
+    profession: 'physicist',
+    accomplishment: 'electromagnetism theory',
+    imageId: 'bE7W1ji'
+}, {
+    id: 3,
+    name: 'Percy Lavon Julian',
+    profession: 'chemist',
+    accomplishment: 'pioneering cortisone drugs, steroids and birth control pills',
+    imageId: 'IOjWm71'
+}, {
+    id: 4,
+    name: 'Subrahmanyan Chandrasekhar',
+    profession: 'astrophysicist',
+    accomplishment: 'white dwarf star mass calculations',
+    imageId: 'lrWQx8l'
+}];
+
+export default function List() {
+    const chemists = people.filter(person => {
+        return person.profession === 'chemist';
+    });
+
+    const others = people.filter(person => person.profession !== 'chemist')
+    const otherListItems = others.map(person =>
+        <li key={person.id}>
+            <img
+                src={getImageUrl(person)}
+                alt={person.name}
+            />
+            <p>
+                <b>{person.name}:</b>
+                {' ' + person.profession + ' '}
+                known for {person.accomplishment}
+            </p>
+        </li>
+    );
+    const chemistsListitems = chemists.map(person =>
+        <li key={person.id}>
+            <img
+                src={getImageUrl(person)}
+                alt={person.name}
+            />
+            <p>
+                <b>{person.name}:</b>
+                {' ' + person.profession + ' '}
+                known for {person.accomplishment}
+            </p>
+        </li>);
+    return (
+        <article>
+            <h1>Scientists</h1>
+            <ul>{otherListItems}</ul>
+            <h1>Chemists</h1>
+            <ul>{chemistsListitems}</ul>
+        </article>
+    );
+}
+
+
+```
+
+#### challenge 2:
+
+```
+export const recipes = [{
+    id: 'greek-salad',
+    name: 'Greek Salad',
+    ingredients: ['tomatoes', 'cucumber', 'onion', 'olives', 'feta']
+}, {
+    id: 'hawaiian-pizza',
+    name: 'Hawaiian Pizza',
+    ingredients: ['pizza crust', 'pizza sauce', 'mozzarella', 'ham', 'pineapple']
+}, {
+    id: 'hummus',
+    name: 'Hummus',
+    ingredients: ['chickpeas', 'olive oil', 'garlic cloves', 'lemon', 'tahini']
+}];
+
+function showRecipes() {
+    const a = recipes.map(food => {
+        return (<div key={food.id}>
+            <h2>{food.name}</h2>
+            <ul>{food.ingredients.map(ingredients => {
+                return (<li key={ingredients}>{ingredients}</li>);
+            })}</ul>
+        </div>);
+    });
+    return a;
+}
+
+export default function RecipeList() {
+    return (
+        <div>
+            <h1>Recipes</h1>
+            {showRecipes()}
+        </div>
+    );
+}
+
+
+```
+
+#### challenge 3:
+
+```
+const recipes = [{
+    id: 'greek-salad',
+    name: 'Greek Salad',
+    ingredients: ['tomatoes', 'cucumber', 'onion', 'olives', 'feta']
+}, {
+    id: 'hawaiian-pizza',
+    name: 'Hawaiian Pizza',
+    ingredients: ['pizza crust', 'pizza sauce', 'mozzarella', 'ham', 'pineapple']
+}, {
+    id: 'hummus',
+    name: 'Hummus',
+    ingredients: ['chickpeas', 'olive oil', 'garlic cloves', 'lemon', 'tahini']
+}];
+
+function Recipe({id, name, ingredients}) {
+    return (
+        <div key={id}>
+            <h2>{name}</h2>
+            <ul>
+                {ingredients.map(ingredients => {
+                    return (
+                        <li key={ingredients}>{ingredients}</li>
+                    );
+                })}
+            </ul>
+        </div>
+    );
+}
+
+export default function RecipeList() {
+    return (
+        <div>
+            <h1>Recipes</h1>
+            {recipes.map(recipes => (
+                <Recipe key={recipes.id} {...recipes}></Recipe>))}
+        </div>
+    );
+}
+
+```
+
+#### challenge 4:
+
+```
+const poem = {
+    lines: [
+        'I write, erase, rewrite',
+        'Erase again, and then',
+        'A poppy blooms.'
+    ]
+};
+
+function poet() {
+}
+
+export default function Poem() {
+    let output = [];
+
+    poem.lines.forEach((line, i) => {
+        output.push(<p key={i + '-text'}> {line} </p>)
+        output.push(<hr key={i + 'separator'}/> )
+    })
+    output.pop();
+
+    return (
+        <article>
+            {output}
+        </article>
+    );
+}
+
+```
+
+### Keeping Components Pure 保持组件纯净
+
+#### challenge 1:
+
+#### challenge 2:
+
+#### challenge 3:
