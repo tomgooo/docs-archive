@@ -609,3 +609,68 @@ export default function StoryTray({ stories }) {
 ## Adding Interactivity 添加交互性
 
 ### Responding to Events 响应事件
+
+#### challenge 1:
+
+```
+export default function LightSwitch() {
+  function handleClick() {
+    let bodyStyle = document.body.style;
+    if (bodyStyle.backgroundColor === 'black') {
+      bodyStyle.backgroundColor = 'white';
+    } else {
+      bodyStyle.backgroundColor = 'black';
+    }
+  }
+
+  return (
+    <button onClick={handleClick}>
+      Toggle the lights
+    </button>
+  );
+}
+```
+
+#### challenge 2:
+
+```
+export default function ColorSwitch({
+  onChangeColor
+}) {
+  return (
+    <button onClick ={e => {
+      e.stopPropagation();
+      onChangeColor();
+    }} >
+      Change color
+    </button>
+  );
+}
+```
+
+### State: A Component's Memory 状态：组件的记忆
+
+#### challenge 1:
+
+```
+
+```
+
+#### challenge 2:
+
+```
+
+```
+
+#### challenge 3:
+
+```
+
+```
+
+#### challenge 4:
+
+```
+
+```
+
