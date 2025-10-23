@@ -874,3 +874,450 @@ export default function FeedbackForm() {
 
 ```
 
+### State as a Snapshot 状态快照
+
+#### challenge 1:
+
+```
+import {useState} from 'react';
+
+export default function TrafficLight() {
+    const [walk, setWalk] = useState(true);
+
+    function handleClick() {
+        setWalk(!walk);
+        alert(walk ? 'Stop is next' : 'Walk is next' )
+    }
+
+    return (
+        <>
+            <button onClick={handleClick}>
+                Change to {walk ? 'Stop' : 'Walk'}
+            </button>
+            <h1 style={{
+                color: walk ? 'darkgreen' : 'darkred'
+            }}>
+                {walk ? 'Walk' : 'Stop'}
+            </h1>
+        </>
+    );
+}
+```
+
+### Queueing a Series of State Updates 将一系列状态更新加入队列
+
+#### challenge 1:
+
+```
+import { useState } from 'react';
+
+export default function RequestTracker() {
+    const [pending, setPending] = useState(0);
+    const [completed, setCompleted] = useState(0);
+
+    async function handleClick() {
+        setPending(n => n+ 1);
+        await delay(3000);
+        setPending(n => n- 1);
+        setCompleted(n => n+ 1);
+    }
+
+    return (
+        <>
+            <h3>
+                等待：{pending}
+            </h3>
+            <h3>
+                完成：{completed}
+            </h3>
+            <button onClick={handleClick}>
+                购买
+            </button>
+        </>
+    );
+}
+
+function delay(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
+}
+
+```
+
+#### challenge 2:
+
+```
+function getFinalState(baseState, queue) {
+    let finalState = baseState;
+    // TODO: 对队列做些什么...
+    for (const finalStateElement of queue) {
+        if (typeof finalStateElement === 'number') {
+            finalState = finalStateElement;
+        } else if (typeof finalStateElement === 'function') {
+            finalState = finalStateElement(finalState);
+        }
+    }
+    return finalState;
+}
+
+function increment(n) {
+    return n + 1;
+}
+
+increment.toString = () => 'n => n+1';
+
+export default function App() {
+    return (
+        <>
+            <TestCase
+                baseState={0}
+                queue={[1, 1, 1]}
+                expected={1}
+            />
+            <hr/>
+            <TestCase
+                baseState={0}
+                queue={[
+                    increment,
+                    increment,
+                    increment
+                ]}
+                expected={3}
+            />
+            <hr/>
+            <TestCase
+                baseState={0}
+                queue={[
+                    5,
+                    increment,
+                ]}
+                expected={6}
+            />
+            <hr/>
+            <TestCase
+                baseState={0}
+                queue={[
+                    5,
+                    increment,
+                    42,
+                ]}
+                expected={42}
+            />
+        </>
+    );
+}
+
+function TestCase({
+                      baseState,
+                      queue,
+                      expected
+                  }) {
+    const actual = getFinalState(baseState, queue);
+    return (
+        <>
+            <p>初始 state：<b>{baseState}</b></p>
+            <p>队列：<b>[{queue.join(', ')}]</b></p>
+            <p>预期结果：<b>{expected}</b></p>
+            <p style={{
+                color: actual === expected ?
+                    'green' :
+                    'red'
+            }}>
+                你的结果：<b>{actual}</b>
+                {' '}
+                ({actual === expected ?
+                '正确' :
+                '错误'
+            })
+            </p>
+        </>
+    );
+}
+
+```
+
+
+
+### Updating Objects in State 更新状态中的对象
+
+#### challenge 1:
+
+```
+import { useState } from 'react';
+
+export default function Scoreboard() {
+  const [player, setPlayer] = useState({
+    firstName: 'Ranjani',
+    lastName: 'Shettar',
+    score: 10,
+  });
+
+  function handlePlusClick() {
+    setPlayer({
+      ...player,
+      score : ++player.score,
+    });
+  }
+
+  function handleFirstNameChange(e) {
+    setPlayer({
+      ...player,
+      firstName: e.target.value,
+    });
+  }
+
+  function handleLastNameChange(e) {
+    setPlayer({
+      ...player,
+      lastName: e.target.value
+    });
+  }
+
+  return (
+    <>
+      <label>
+        Score: <b>{player.score}</b>
+        {' '}
+        <button onClick={handlePlusClick}>
+          +1
+        </button>
+      </label>
+      <label>
+        First name:
+        <input
+          value={player.firstName}
+          onChange={handleFirstNameChange}
+        />
+      </label>
+      <label>
+        Last name:
+        <input
+          value={player.lastName}
+          onChange={handleLastNameChange}
+        />
+      </label>
+    </>
+  );
+}
+
+```
+
+#### challenge 2:
+
+```
+import {useState} from 'react';
+
+export default function Box({
+                                children,
+                                color,
+                                position,
+                                onMove
+                            }) {
+    const [
+        lastCoordinates,
+        setLastCoordinates
+    ] = useState(null);
+
+    function handlePointerDown(e) {
+        e.target.setPointerCapture(e.pointerId);
+        setLastCoordinates({
+            x: e.clientX,
+            y: e.clientY,
+        });
+    }
+
+    function handlePointerMove(e) {
+        if (lastCoordinates) {
+            setLastCoordinates({
+                x: e.clientX,
+                y: e.clientY,
+            });
+            const dx = e.clientX - lastCoordinates.x;
+            const dy = e.clientY - lastCoordinates.y;
+            onMove(dx, dy);
+        }
+    }
+
+    function handlePointerUp(e) {
+        setLastCoordinates(null);
+    }
+
+    return (
+        <div
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            style={{
+                width: 100,
+                height: 100,
+                cursor: 'grab',
+                backgroundColor: color,
+                position: 'absolute',
+                border: '1px solid black',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                transform: `translate(
+          ${position.x}px,
+          ${position.y}px
+        )`,
+            }}
+        >{children}</div>
+    );
+}
+
+export default function Background({
+                                       position
+                                   }) {
+    return (
+        <div style={{
+            position: 'absolute',
+            transform: `translate(
+        ${position.x}px,
+        ${position.y}px
+      )`,
+            width: 250,
+            height: 250,
+            backgroundColor: 'rgba(200, 200, 0, 0.2)',
+        }}/>
+    );
+};
+
+
+const initialPosition = {
+    x: 0,
+    y: 0
+};
+
+
+export default function Canvas() {
+    const [shape, setShape] = useState({
+        color: 'orange',
+        position: initialPosition
+    });
+
+    function handleMove(dx, dy) {
+        setShape({
+            ...shape,
+            position: {x: dx + shape.position.x, y: dy + shape.position.y}
+        })
+    }
+
+    function handleColorChange(e) {
+        setShape({
+            ...shape,
+            color: e.target.value
+        });
+    }
+
+    return (
+        <>
+            <select
+                value={shape.color}
+                onChange={handleColorChange}
+            >
+                <option value="orange">orange</option>
+                <option value="lightpink">lightpink</option>
+                <option value="aliceblue">aliceblue</option>
+            </select>
+            <Background
+                position={initialPosition}
+            />
+            <Box
+                color={shape.color}
+                position={shape.position}
+                onMove={handleMove}
+            >
+                Drag me!
+            </Box>
+        </>
+    );
+}
+
+```
+
+#### challenge 3:
+
+```
+import { useState } from 'react';
+import { useImmer } from 'use-immer';
+import Background from './Background.js';
+import Box from './Box.js';
+
+const initialPosition = {
+  x: 0,
+  y: 0
+};
+
+export default function Canvas() {
+  const [shape, updateShape] = useImmer({
+    color: 'orange',
+    position: initialPosition
+  });
+
+  function handleMove(dx, dy) {
+    updateShape(draft => {
+      draft.position.x += dx;
+      draft.position.y += dy;
+    });
+  }
+
+  function handleColorChange(e) {
+    updateShape(draft => {
+      draft.color = e.target.value;
+    });
+  }
+
+  return (
+    <>
+      <select
+        value={shape.color}
+        onChange={handleColorChange}
+      >
+        <option value="orange">orange</option>
+        <option value="lightpink">lightpink</option>
+        <option value="aliceblue">aliceblue</option>
+      </select>
+      <Background
+        position={initialPosition}
+      />
+      <Box
+        color={shape.color}
+        position={shape.position}
+        onMove={handleMove}
+      >
+        Drag me!
+      </Box>
+    </>
+  );
+}
+
+```
+
+### Updating Arrays in State 更新状态数组
+
+#### challenge 1:
+
+```
+
+```
+
+challenge 2:
+
+```
+
+```
+
+challenge 3:
+
+```
+
+```
+
+challenge 4:
+
+```
+
+```
+
