@@ -1636,3 +1636,373 @@ export default function TaskApp() {
 
 ```
 
+### Reacting to Input with State 通过状态响应输入
+
+#### challenge 1:
+
+```
+import { useState } from 'react';
+
+export default function Picture() {
+  const [isActive, setIsActive] = useState(false);
+
+  let backgroundClassName = 'background';
+  let pictureClassName = 'picture';
+  if (isActive) {
+    pictureClassName += ' picture--active';
+  } else {
+    backgroundClassName += ' background--active';
+  }
+
+  return (
+    <div
+      className={backgroundClassName}
+      onClick={() => setIsActive(false)}
+    >
+      <img
+        onClick={e => {
+          e.stopPropagation();
+          setIsActive(true);
+        }}
+        className={pictureClassName}
+        alt="Rainbow houses in Kampung Pelangi, Indonesia"
+        src="https://i.imgur.com/5qwVYb1.jpeg"
+      />
+    </div>
+  );
+}
+```
+
+#### challenge 2:
+
+```
+import {useState} from 'react';
+
+export default function EditProfile() {
+    const [firstName, setFirstName] = useState("Jane");
+    const [lastName, setLastName] = useState("Jacobs");
+    const [isSubmit, setIsSubmit] = useState(true);
+
+    let helloWorld = "Hello, " + firstName + " " + lastName + "!";
+    let firstNameShow;
+    let lastNameShow;
+    let buttonShow;
+    if (isSubmit) {
+        firstNameShow = (<b>{firstName}</b>);
+        lastNameShow = (<b>{lastName}</b>)
+        buttonShow = "Edit Profile";
+    } else {
+        firstNameShow = (<input value={firstName} onChange={event => setFirstName(event.target.value)}/>);
+        lastNameShow = (<input value={lastName} onChange={event => setLastName(event.target.value)}/>);
+        buttonShow = "Save Profile";
+    }
+
+    function handleClick(event) {
+        event.preventDefault();
+        setIsSubmit(!isSubmit);
+    }
+
+    return (
+        <form>
+            <label>
+                First name:{' '}
+                {firstNameShow}
+            </label>
+            <label>
+                Last name:{' '}
+                {lastNameShow}
+            </label>
+            <button type="submit" onClick={handleClick}>
+                {buttonShow}
+            </button>
+            <p><i>{helloWorld}</i></p>
+        </form>
+    );
+}
+
+
+```
+
+#### challenge 3:
+
+```
+//skip
+```
+
+
+
+### Choosing the State Structure 选择 State 结构
+
+#### challenge 1:
+
+```
+import { useState } from 'react';
+
+export default function Clock(props) {
+    const [color, setColor] = useState(props.color);
+    return (
+        <h1 style={{color:props.color}}>
+            {props.time}
+        </h1>
+    );
+}
+
+```
+
+#### challenge 2:
+
+```
+import { useState } from 'react';
+import AddItem from './AddItem.js';
+import PackingList from './PackingList.js';
+
+let nextId = 3;
+const initialItems = [
+    { id: 0, title: 'Warm socks', packed: true },
+    { id: 1, title: 'Travel journal', packed: false },
+    { id: 2, title: 'Watercolors', packed: false },
+];
+
+export default function TravelPlan() {
+    const [items, setItems] = useState(initialItems);
+    const [total, setTotal] = useState(3);
+    const [packed, setPacked] = useState(1);
+
+    function handleAddItem(title) {
+        setTotal(total + 1);
+        setItems([
+            ...items,
+            {
+                id: nextId++,
+                title: title,
+                packed: false
+            }
+        ]);
+    }
+
+    function handleChangeItem(nextItem) {
+        if (nextItem.packed) {
+            setPacked(packed + 1);
+        } else {
+            setPacked(packed - 1);
+        }
+        setItems(items.map(item => {
+            if (item.id === nextItem.id) {
+                return nextItem;
+            } else {
+                return item;
+            }
+        }));
+    }
+
+    function handleDeleteItem(itemId) {
+        const selectedItem = items.find(item => item.id === itemId)
+        if (selectedItem && selectedItem.packed ){
+            setPacked(packed - 1);
+        }
+        setTotal(total - 1);
+        setItems(
+            items.filter(item => item.id !== itemId)
+        );
+    }
+
+    return (
+        <>
+            <AddItem
+                onAddItem={handleAddItem}
+            />
+            <PackingList
+                items={items}
+                onChangeItem={handleChangeItem}
+                onDeleteItem={handleDeleteItem}
+            />
+            <hr />
+            <b>{packed} out of {total} packed!</b>
+        </>
+    );
+}
+
+```
+
+#### challenge 3:
+
+```
+import {useState} from 'react';
+
+const initialLetters = [{
+    id: 0,
+    subject: 'Ready for adventure?',
+    isStarred: true,
+}, {
+    id: 1,
+    subject: 'Time to check in!',
+    isStarred: false,
+}, {
+    id: 2,
+    subject: 'Festival Begins in Just SEVEN Days!',
+    isStarred: false,
+}];
+
+function Letter({
+                    letter,
+                    isHighlighted,
+                    onHover,
+                    onToggleStar,
+                }) {
+    return (
+        <li
+            className={
+                isHighlighted ? 'highlighted' : ''
+            }
+            onFocus={() => {
+                onHover(letter.id);
+            }}
+            onPointerMove={() => {
+                onHover(letter.id);
+            }}
+        >
+            <button onClick={() => {
+                onToggleStar(letter);
+            }}>
+                {letter.isStarred ? 'Unstar' : 'Star'}
+            </button>
+            {letter.subject}
+        </li>
+    )
+
+}
+
+export default function MailClient() {
+    const [letters, setLetters] = useState(initialLetters);
+    const [highlightedLetter, sethighlightedLetter] = useState(-1);
+
+    function handleHover(id) {
+        sethighlightedLetter(id);
+    }
+
+    function handleStar(starred) {
+        setLetters(letters.map(letter => {
+            if (letter.id === starred.id) {
+                return {
+                    ...letter,
+                    isStarred: !letter.isStarred
+                };
+            } else {
+                return letter;
+            }
+        }));
+    }
+
+    return (
+        <>
+            <h2>Inbox</h2>
+            <ul>
+                {letters.map(letter => (
+                    <Letter
+                        key={letter.id}
+                        letter={letter}
+                        isHighlighted={
+                            letter.id === highlightedLetter
+                        }
+                        onHover={handleHover}
+                        onToggleStar={handleStar}
+                    />
+                ))}
+            </ul>
+        </>
+    );
+}
+
+```
+
+#### challenge 4:
+
+```
+import {useState} from 'react';
+
+export const letters = [{
+    id: 0,
+    subject: 'Ready for adventure?',
+    isStarred: true,
+}, {
+    id: 1,
+    subject: 'Time to check in!',
+    isStarred: false,
+}, {
+    id: 2,
+    subject: 'Festival Begins in Just SEVEN Days!',
+    isStarred: false,
+}];
+
+function Letter({
+                    letter,
+                    onToggle,
+                    isSelected,
+                }) {
+    return (
+        <li className={
+            isSelected ? 'selected' : ''
+        }>
+            <label>
+                <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => {
+                        onToggle(letter.id);
+                    }}
+                />
+                {letter.subject}
+            </label>
+        </li>
+    )
+}
+
+export default function MailClient() {
+    const [selectedIdList, setSelectedIdList] = useState([]);
+
+    // TODO: 支持多选
+    const selectedCount = selectedIdList.length;
+
+    function handleToggle(toggledId) {
+        // TODO: 支持多选
+        setSelectedIdList(prevState => {
+            if (prevState.includes(toggledId)) {
+                return prevState.filter(value => value != toggledId)
+            }else {
+                return [...prevState,toggledId];
+            }
+        })
+    }
+
+    return (
+        <>
+            <h2>Inbox</h2>
+            <ul>
+                {letters.map(letter => (
+                    <Letter
+                        key={letter.id}
+                        letter={letter}
+                        isSelected={
+                            // TODO: 支持多选
+                            selectedIdList.includes(letter.id)
+                        }
+                        onToggle={handleToggle}
+                    />
+                ))}
+                <hr/>
+                <p>
+                    <b>
+                        You selected {selectedCount} letters
+                    </b>
+                </p>
+            </ul>
+        </>
+    );
+}
+```
+
+### Sharing State Between Components 在组件之间共享状态
+
+challenge 1:
+
+challenge 2:
