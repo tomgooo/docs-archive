@@ -2128,12 +2128,361 @@ function List({items}) {
 
 ### Preserving and Resetting State 保存和重置状态
 
-challenge 1:
+#### challenge 1:
 
-challenge 2:
+```
+import {useState} from 'react';
 
-challenge 3:
+export default function App() {
+    const [showHint, setShowHint] = useState(false);
 
-challenge 4:
+    return (
+        <div>
+            {showHint && (<p><i>提示：你最喜欢的城市？</i></p>)}
+            <Form/>
+            {
+                showHint ? (<button onClick={() => {
+                        setShowHint(false);
+                    }}>隐藏提示</button> ): (<button onClick={() => {
+                        setShowHint(true);
+                    }}>显示提示</button>)
+            }
+        </div>
+    );
+}
 
-challenge 5:
+function Form() {
+    const [text, setText] = useState('');
+    return (
+        <textarea
+            value={text}
+            onChange={e => setText(e.target.value)}
+        />
+    );
+}
+
+```
+
+#### challenge 2:
+
+```
+import {useState} from 'react';
+
+export default function App() {
+    const [reverse, setReverse] = useState(false);
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+
+    let checkbox = (
+        <label>
+            <input
+                type="checkbox"
+                checked={reverse}
+                onChange={e => setReverse(e.target.checked)}
+            />
+            调换顺序
+        </label>
+    );
+    if (reverse) {
+        return (
+            <>
+                <Field label="姓氏" key="lastName" onChange={e => setLastName(e.target.value)} text={lastName}/>
+                <Field label="名字" key="firstName" onChange={e => setFirstName(e.target.value)} text={firstName}/>
+                {checkbox}
+            </>
+        );
+    } else {
+        return (
+            <>
+                <Field label="名字" key="firstName" onChange={e => setFirstName(e.target.value)} text={firstName}/>
+                <Field label="姓氏" key="lastName" onChange={e => setLastName(e.target.value)} text={lastName}/>
+                {checkbox}
+            </>
+        );
+    }
+}
+
+function Field({label: myLabel, text: showText, onChange: showChange}) {
+    return (
+        <label>
+            {myLabel}：
+            <input
+                type="text"
+                value={showText}
+                placeholder={myLabel}
+                onChange={showChange}
+            />
+        </label>
+    );
+}
+
+```
+
+#### challenge 3:
+
+```
+import {useState} from 'react';
+
+function ContactList({
+                         contacts,
+                         selectedId,
+                         onSelect
+                     }) {
+    return (
+        <section>
+            <ul>
+                {contacts.map(contact =>
+                    <li key={contact.id}>
+                        <button onClick={() => {
+                            onSelect(contact.id);
+                        }}>
+                            {contact.id === selectedId ?
+                                <b>{contact.name}</b> :
+                                contact.name
+                            }
+                        </button>
+                    </li>
+                )}
+            </ul>
+        </section>
+    );
+}
+
+function EditContact({initialData, onSave}) {
+    const [name, setName] = useState(initialData.name);
+    const [email, setEmail] = useState(initialData.email);
+    return (
+        <section>
+            <label>
+                名称：
+                <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                />
+            </label>
+            <label>
+                邮箱：
+                <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                />
+            </label>
+            <button onClick={() => {
+                const updatedData = {
+                    id: initialData.id,
+                    name: name,
+                    email: email
+                };
+                onSave(updatedData);
+            }}>
+                保存
+            </button>
+            <button onClick={() => {
+                setName(initialData.name);
+                setEmail(initialData.email);
+            }}>
+                重置
+            </button>
+        </section>
+    );
+}
+
+
+export default function ContactManager() {
+    const [
+        contacts,
+        setContacts
+    ] = useState(initialContacts);
+    const [
+        selectedId,
+        setSelectedId
+    ] = useState(0);
+    const selectedContact = contacts.find(c =>
+        c.id === selectedId
+    );
+
+    function handleSave(updatedData) {
+        const nextContacts = contacts.map(c => {
+            if (c.id === updatedData.id) {
+                return updatedData;
+            } else {
+                return c;
+            }
+        });
+        setContacts(nextContacts);
+    }
+
+    return (
+        <div>
+            <ContactList
+                contacts={contacts}
+                selectedId={selectedId}
+                onSelect={id => setSelectedId(id)}
+            />
+            <hr/>
+            <EditContact
+                initialData={selectedContact}
+                onSave={handleSave}
+                key={selectedContact?.name}
+            />
+        </div>
+    )
+}
+
+const initialContacts = [
+    {id: 0, name: 'Taylor', email: 'taylor@mail.com'},
+    {id: 1, name: 'Alice', email: 'alice@mail.com'},
+    {id: 2, name: 'Bob', email: 'bob@mail.com'}
+];
+
+```
+
+#### challenge 4:
+
+```
+import { useState } from 'react';
+
+export default function Gallery() {
+    const [index, setIndex] = useState(0);
+    const hasNext = index < images.length - 1;
+
+    function handleClick() {
+        if (hasNext) {
+            setIndex(index + 1);
+        } else {
+            setIndex(0);
+        }
+    }
+
+    let image = images[index];
+    return (
+        <>
+            <button onClick={handleClick}>
+                下一张
+            </button>
+            <h3>
+                {images.length} 张图片中的第 {index + 1} 张
+            </h3>
+            <img key={image.place} src={image.src} />
+            <p>
+                {image.place}
+            </p>
+        </>
+    );
+}
+
+let images = [{
+    place: 'Penang, Malaysia',
+    src: 'https://i.imgur.com/FJeJR8M.jpg'
+}, {
+    place: 'Lisbon, Portugal',
+    src: 'https://i.imgur.com/dB2LRbj.jpg'
+}, {
+    place: 'Bilbao, Spain',
+    src: 'https://i.imgur.com/z08o2TS.jpg'
+}, {
+    place: 'Valparaíso, Chile',
+    src: 'https://i.imgur.com/Y3utgTi.jpg'
+}, {
+    place: 'Schwyz, Switzerland',
+    src: 'https://i.imgur.com/JBbMpWY.jpg'
+}, {
+    place: 'Prague, Czechia',
+    src: 'https://i.imgur.com/QwUKKmF.jpg'
+}, {
+    place: 'Ljubljana, Slovenia',
+    src: 'https://i.imgur.com/3aIiwfm.jpg'
+}];
+
+```
+
+#### challenge 5:
+
+```
+import { useState } from 'react';
+
+function Contact({ contact }) {
+    const [expanded, setExpanded] = useState(false);
+    return (
+        <>
+            <p><b>{contact.name}</b></p>
+            {expanded &&
+                <p><i>{contact.email}</i></p>
+            }
+            <button onClick={() => {
+                setExpanded(!expanded);
+            }}>
+                {expanded ? '隐藏' : '显示'}邮箱
+            </button>
+        </>
+    );
+}
+
+export default function ContactList() {
+    const [reverse, setReverse] = useState(false);
+
+    const displayedContacts = [...contacts];
+    if (reverse) {
+        displayedContacts.reverse();
+    }
+
+    return (
+        <>
+            <label>
+                <input
+                    type="checkbox"
+                    checked={reverse}
+                    onChange={e => {
+                        setReverse(e.target.checked)
+                    }}
+                />{' '}
+                以相反的顺序显示
+            </label>
+            <ul>
+                {displayedContacts.map((contact, i) =>
+                    <li key={contact.name}>
+                        <Contact contact={contact} />
+                    </li>
+                )}
+            </ul>
+        </>
+    );
+}
+
+const contacts = [
+    { id: 0, name: 'Alice', email: 'alice@mail.com' },
+    { id: 1, name: 'Bob', email: 'bob@mail.com' },
+    { id: 2, name: 'Taylor', email: 'taylor@mail.com' }
+];
+
+
+```
+
+### Extracting State Logic into a Reducer迁移状态逻辑至 Reducer 中
+
+#### challenge 1:
+
+```
+
+```
+
+#### challenge 2:
+
+```
+
+```
+
+#### challenge 3:
+
+```
+
+```
+
+#### challenge 4:
+
+```
+
+```
+
