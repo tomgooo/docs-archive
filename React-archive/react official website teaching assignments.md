@@ -2465,24 +2465,447 @@ const contacts = [
 #### challenge 1:
 
 ```
+import {useReducer, useState} from 'react';
+
+function ContactList({contacts, selectedId, dispatch}) {
+    return (
+        <section className="contact-list">
+            <ul>
+                {contacts.map((contact) => (
+                    <li key={contact.id}>
+                        <button
+                            onClick={() => {
+                                // TODO: 派发 changed_selection
+                                dispatch({type:'changed_selection', contactId :contact.id })
+                            }}>
+                            {selectedId === contact.id ? <b>{contact.name}</b> : contact.name}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    );
+}
+
+
+function Chat({contact, message, dispatch}) {
+    return (
+        <section className="chat">
+      <textarea
+          value={message}
+          placeholder={'和 ' + contact.name + ' 聊天'}
+          onChange={(e) => {
+              // TODO: 派发 edited_message
+              // (从 e.target.value 获取输入框的值)
+              dispatch({type: 'edited_message', message: e.target.value})
+          }}
+      />
+            <br/>
+            <button>发送到 {contact.email}</button>
+        </section>
+    );
+}
+
+const initialState = {
+    selectedId: 0,
+    message: '你好',
+};
+
+function messengerReducer(state, action) {
+    switch (action.type) {
+        case 'changed_selection': {
+            return {
+                ...state,
+                selectedId: action.contactId,
+                message: '',
+            };
+        }
+        case 'edited_message': {
+            return {
+                ...state,
+                message: action.message,
+            };
+        }
+        default: {
+            throw Error('未知 action：' + action.type);
+        }
+    }
+}
+
+export default function Messenger() {
+    const [state, dispatch] = useReducer(messengerReducer, initialState);
+    const message = state.message;
+    const contact = contacts.find((c) => c.id === state.selectedId);
+    return (
+        <div>
+            <ContactList
+                contacts={contacts}
+                selectedId={state.selectedId}
+                dispatch={dispatch}
+            />
+            <Chat
+                key={contact.id}
+                message={message}
+                contact={contact}
+                dispatch={dispatch}
+            />
+        </div>
+    );
+}
+
+const contacts = [
+    {id: 0, name: 'Taylor', email: 'taylor@mail.com'},
+    {id: 1, name: 'Alice', email: 'alice@mail.com'},
+    {id: 2, name: 'Bob', email: 'bob@mail.com'},
+];
 
 ```
 
 #### challenge 2:
 
 ```
+import {useState} from 'react';
+import {useReducer} from 'react';
+
+export default function Chat({contact, message, dispatch}) {
+    return (
+        <section className="chat">
+      <textarea
+          value={message}
+          placeholder={'和 ' + contact.name + ' 聊天'}
+          onChange={(e) => {
+              dispatch({
+                  type: 'edited_message',
+                  message: e.target.value,
+              });
+          }}
+      />
+            <br/>
+            <button onClick={() => {
+                dispatch({type : 'send_message',message:''});
+                const mesge = "recipient ：" + contact.name + "\n" + "email : " + contact.email;
+                alert(mesge);
+            }}>发送到 {contact.email}</button>
+        </section>
+    );
+}
+
+function ContactList({contacts, selectedId, dispatch}) {
+    return (
+        <section className="contact-list">
+            <ul>
+                {contacts.map((contact) => (
+                    <li key={contact.id}>
+                        <button
+                            onClick={() => {
+                                dispatch({
+                                    type: 'changed_selection',
+                                    contactId: contact.id,
+                                });
+                            }}>
+                            {selectedId === contact.id ? <b>{contact.name}</b> : contact.name}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    );
+}
+
+const initialState = {
+    selectedId: 0,
+    message: '你好',
+};
+
+function messengerReducer(state, action) {
+    switch (action.type) {
+        case 'changed_selection': {
+            return {
+                ...state,
+                selectedId: action.contactId,
+                message: '',
+            };
+        }
+        case 'edited_message': {
+            return {
+                ...state,
+                message: action.message,
+            };
+        }
+        case 'send_message' : {
+            return {
+                ...state,
+                message: ''
+            }
+        }
+        default: {
+            throw Error('未知 action：' + action.type);
+        }
+    }
+}
+
+export default function Messenger() {
+    const [state, dispatch] = useReducer(messengerReducer, initialState);
+    const message = state.message;
+    const contact = contacts.find((c) => c.id === state.selectedId);
+    return (
+        <div>
+            <ContactList
+                contacts={contacts}
+                selectedId={state.selectedId}
+                dispatch={dispatch}
+            />
+            <Chat
+                key={contact.id}
+                message={message}
+                contact={contact}
+                dispatch={dispatch}
+            />
+        </div>
+    );
+}
+
+const contacts = [
+    {id: 0, name: 'Taylor', email: 'taylor@mail.com'},
+    {id: 1, name: 'Alice', email: 'alice@mail.com'},
+    {id: 2, name: 'Bob', email: 'bob@mail.com'},
+];
 
 ```
 
 #### challenge 3:
 
 ```
+import {useState} from 'react';
+import {useReducer} from 'react';
+
+function Chat({contact, message, dispatch}) {
+    return (
+        <section className="chat">
+      <textarea
+          value={message}
+          placeholder={'和 ' + contact.name + ' 聊天'}
+          onChange={(e) => {
+              dispatch({
+                  type: 'edited_message',
+                  message: e.target.value,
+              });
+          }}
+      />
+            <br/>
+            <button
+                onClick={() => {
+                    alert(`正在发送 "${message}" 到 ${contact.email}`);
+                    dispatch({
+                        type: 'sent_message',
+                    });
+                }}>
+                发送到 {contact.email}
+            </button>
+        </section>
+    );
+}
+
+function ContactList({contacts, selectedId, dispatch}) {
+    return (
+        <section className="contact-list">
+            <ul>
+                {contacts.map((contact) => (
+                    <li key={contact.id}>
+                        <button
+                            onClick={() => {
+                                dispatch({
+                                    type: 'changed_selection',
+                                    contactId: contact.id,
+                                });
+                            }}>
+                            {selectedId === contact.id ? <b>{contact.name}</b> : contact.name}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    );
+}
+
+const initialState = {
+    selectedId: 0,
+    message: '你好',
+    draft: [{id: 0, message: '你好'}, {id: 1, message: ''}, {id: 2, message: ''}]
+};
+
+function messengerReducer(state, action) {
+    switch (action.type) {
+        case 'changed_selection': {
+            return {
+                ...state,
+                selectedId: action.contactId,
+                message: state.draft.find((people) => people.id === action.contactId )?.message,
+            };
+        }
+        case 'edited_message': {
+            return {
+                ...state,
+                message: action.message,
+                draft: state.draft.map((people) => {
+                    if (people.id === state.selectedId) {
+                        people.message = action.message;
+                        return people;
+                    } else {
+                        return people;
+                    }
+                })
+            };
+        }
+        case 'sent_message': {
+            return {
+                ...state,
+                message: '',
+                draft: [{id: 0, message: '你好'}, {id: 1, message: ''}, {id: 2, message: ''}]
+            };
+        }
+        default: {
+            throw Error('未知 action：' + action.type);
+        }
+    }
+}
+
+export default function Messenger() {
+    const [state, dispatch] = useReducer(messengerReducer, initialState);
+    const message = state.draft.find((c)=> c.id === state.selectedId).message;
+    const contact = contacts.find((c) => c.id === state.selectedId);
+    return (
+        <div>
+            <ContactList
+                contacts={contacts}
+                selectedId={state.selectedId}
+                dispatch={dispatch}
+            />
+            <Chat
+                key={contact.id}
+                message={message}
+                contact={contact}
+                dispatch={dispatch}
+            />
+        </div>
+    );
+}
+
+const contacts = [
+    {id: 0, name: 'Taylor', email: 'taylor@mail.com'},
+    {id: 1, name: 'Alice', email: 'alice@mail.com'},
+    {id: 2, name: 'Bob', email: 'bob@mail.com'},
+];
+
 
 ```
 
 #### challenge 4:
 
 ```
+import { useState } from 'react';
+
+export const initialState = {
+    selectedId: 0,
+    messages: {
+        0: 'Hello, Taylor',
+        1: 'Hello, Alice',
+        2: 'Hello, Bob',
+    },
+};
+
+export function messengerReducer(state, action) {
+    switch (action.type) {
+        case 'changed_selection': {
+            return {
+                ...state,
+                selectedId: action.contactId,
+            };
+        }
+        case 'edited_message': {
+            return {
+                ...state,
+                messages: {
+                    ...state.messages,
+                    [state.selectedId]: action.message,
+                },
+            };
+        }
+        case 'sent_message': {
+            return {
+                ...state,
+                messages: {
+                    ...state.messages,
+                    [state.selectedId]: '',
+                },
+            };
+        }
+        default: {
+            throw Error('未知 action：' + action.type);
+        }
+    }
+}
+
+function ContactList({contacts, selectedId, dispatch}) {
+    return (
+        <section className="contact-list">
+            <ul>
+                {contacts.map((contact) => (
+                    <li key={contact.id}>
+                        <button
+                            onClick={() => {
+                                dispatch({
+                                    type: 'changed_selection',
+                                    contactId: contact.id,
+                                });
+                            }}>
+                            {selectedId === contact.id ? <b>{contact.name}</b> : contact.name}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    );
+}
+
+function Chat({contact, message, dispatch}) {
+    return (
+        <section className="chat">
+      <textarea
+          value={message}
+          placeholder={'和 ' + contact.name + ' 聊天'}
+          onChange={(e) => {
+              dispatch({
+                  type: 'edited_message',
+                  message: e.target.value,
+              });
+          }}
+      />
+            <br />
+            <button
+                onClick={() => {
+                    alert(`正在发送 "${message}" 到 ${contact.email}`);
+                    dispatch({
+                        type: 'sent_message',
+                    });
+                }}>
+                发送到 {contact.email}
+            </button>
+        </section>
+    );
+}
+
+export function useReducer(reducer, initialState) {
+    const [state, setState] = useState(initialState);
+
+    // ???
+  function dispatch(action) {
+    const nextState = reducer(state, action);
+    setState(nextState);
+  }
+
+    return [state, dispatch];
+}
 
 ```
 
