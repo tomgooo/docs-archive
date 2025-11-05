@@ -3021,3 +3021,74 @@ function PlaceImage({place}) {
 }
 ```
 
+
+
+## Escape Hatches 逃生舱口
+
+### Referencing Values with Refs 使用 Refs 引用值
+
+#### challenge 1:
+
+```
+import {useRef, useState} from 'react';
+
+export default function Chat() {
+    const [text, setText] = useState('');
+    const [isSending, setIsSending] = useState(false);
+    const timeoutID = useRef(null);
+
+    function handleSend() {
+        setIsSending(true);
+        timeoutID.current = setTimeout(() => {
+            alert('已发送！');
+            setIsSending(false);
+        }, 3000);
+    }
+
+    function handleUndo() {
+        setIsSending(false);
+        clearTimeout(timeoutID.current);
+    }
+
+    return (
+        <>
+            <input
+                disabled={isSending}
+                value={text}
+                onChange={e => setText(e.target.value)}
+            />
+            <button
+                disabled={isSending}
+                onClick={handleSend}>
+                {isSending ? '发送中……' : '发送'}
+            </button>
+            {isSending &&
+                <button onClick={handleUndo}>
+                    撤销
+                </button>
+            }
+        </>
+    );
+}
+
+```
+
+#### challenge 2:
+
+```
+import {useRef, useState} from 'react';
+
+export default function Toggle() {
+    const [OnRef, setOnRef] = useState(false);
+
+    return (
+        <button onClick={() => {
+            setOnRef(() => !OnRef);
+        }}>
+            {OnRef ? '开' : '关'}
+        </button>
+    );
+}
+
+```
+
