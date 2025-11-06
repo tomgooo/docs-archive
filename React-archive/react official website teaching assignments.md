@@ -3092,3 +3092,159 @@ export default function Toggle() {
 
 ```
 
+#### challenge 3:
+
+```
+import {useRef} from "react";
+
+function DebouncedButton({ onClick, children }) {
+    const timeoutID=useRef(null);
+    return (
+        <button onClick={() => {
+            clearTimeout(timeoutID);
+            timeoutID.current = setTimeout(() => {
+                onClick();
+            }, 1000);
+        }}>
+            {children}
+        </button>
+    );
+}
+
+export default function Dashboard() {
+    return (
+        <>
+            <DebouncedButton
+                onClick={() => alert('宇宙飞船已发射！')}
+            >
+                发射宇宙飞船
+            </DebouncedButton>
+            <DebouncedButton
+                onClick={() => alert('汤煮好了！')}
+            >
+                煮点儿汤
+            </DebouncedButton>
+            <DebouncedButton
+                onClick={() => alert('摇篮曲唱完了！')}
+            >
+                唱首摇篮曲
+            </DebouncedButton>
+        </>
+    )
+}
+
+```
+
+#### challenge 4:
+
+```
+import {useState, useRef} from 'react';
+
+export default function Chat() {
+    const [text, setText] = useState('');
+    const showText = useRef("")
+
+    function handleSend() {
+        setTimeout(() => {
+            alert('正在发送：' + showText.current);
+        }, 3000);
+    }
+
+    return (
+        <>
+            <input
+                value={text}
+                onChange={e => {
+                    setText(e.target.value);
+                    showText.current = (e.target.value);
+                }}
+            />
+            <button
+                onClick={handleSend}>
+                发送
+            </button>
+        </>
+    );
+}
+
+```
+
+### Manipulating the DOM with Refs 使用 Refs 操作 DOM
+
+#### challenge 1:
+
+```
+import {useState, useRef} from 'react';
+
+export default function VideoPlayer() {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const myRef = useRef(null)
+
+    function handleClick() {
+        const nextIsPlaying = !isPlaying;
+        setIsPlaying(nextIsPlaying);
+        if (isPlaying) {
+            myRef.current.pause();
+        } else {
+            myRef.current.play();
+        }
+    }
+
+    return (
+        <>
+            <button onClick={handleClick}>
+                {isPlaying ? '暂停' : '播放'}
+            </button>
+            <video ref={myRef} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} width="250">
+                <source
+                    src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+                    type="video/mp4"
+                />
+            </video>
+        </>
+    )
+}
+
+```
+
+#### challenge 2:
+
+```
+import {useRef} from "react";
+
+export default function Page() {
+    const focusRef = useRef(null);
+
+    function handleFocus() {
+        focusRef.current.focus();
+    }
+
+    return (
+        <>
+            <nav>
+                <button onClick={handleFocus}>搜索</button>
+            </nav>
+            <input ref={focusRef}
+                   placeholder="找什么呢？"
+            />
+        </>
+    );
+}
+```
+
+#### (?)challenge 3:
+
+##### TODO:不会
+
+```
+
+```
+
+#### (?)challenge 4:
+
+##### TODO:不会
+
+```
+
+```
+
